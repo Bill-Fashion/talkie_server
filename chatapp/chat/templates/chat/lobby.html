@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 1</title>
+</head>
+
+
+<body onload="">
+    <h1>Chat</h1>
+    <script type="text/javascript">
+        console.log(`host: ${window.location.host}`)
+        let url = `ws://${window.location.host}/ws/chat/d2bb3903-a1ed-4c11-871b-0de309029ee0/`
+        const chatSocket = new WebSocket(url)
+        chatSocket.onmessage = function(e){
+            let data = JSON.parse(e.data)
+            console.log(data)
+        }
+    </script>
+</body>
+
+</html>
