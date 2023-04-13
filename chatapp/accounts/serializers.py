@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import CustomUser
+from .models import CustomUser, UserFriend
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -26,4 +26,10 @@ class UserSerializer(serializers.ModelSerializer):
 class SearchUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['user_id', 'username', 'first_name', 'last_name', 'avatar']
+        fields = ['user_id', 'username', 'first_name', 'last_name', 'avatar', 'date_joined']
+
+class UserFriendSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserFriend
+        fields = ['id', 'user', 'friend', 'is_accepted']
+        read_only_fields = ['id', 'is_accepted']

@@ -2,7 +2,7 @@ import datetime
 import json
 import uuid
 from channels.generic.websocket import AsyncWebsocketConsumer
-from accounts.models import CustomUser
+from accounts.models import CustomUser, UserDevice
 from chat.serializers import MessageSerializer
 from django.core import serializers
 from .models import Room, Message
@@ -11,6 +11,7 @@ from channels.db import database_sync_to_async
 from asgiref.sync import sync_to_async
 import base64
 from django.core.files.base import ContentFile
+from notification.firebase import push_notification
 
 class MessageType(Enum):
     TEXT = 'text'
@@ -25,6 +26,14 @@ def get_room(room_id):
 def get_user(sender_id):
     return CustomUser.objects.get(user_id=sender_id)
 
+@database_sync_to_async
+def get_user_device(other_member):
+    devices = UserDevice.objects.filter(user=other_member).values_list('device_token', flat=True)
+    return [device for device in devices]
+
+@database_sync_to_async
+def get_other_members(room, sender_id):
+    return room.members.exclude(user_id=sender_id).first()
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -66,6 +75,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             content = text_data_json.get('content', None)
             message = await self.save_message(message_type, room, sender, content)
         
+        other_member = await get_other_members(room, sender_id)
+        # print(other_members.user_id)
+        registration_tokens = await get_user_device(other_member)
+        
+        # = [registration_token for registration_token in registration_devices]
+        push_notification(registration_tokens=registration_tokens, senderId=sender_id, roomId=room_id)
+
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,

@@ -44,10 +44,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
     'chat.apps.ChatConfig',
+    'notification.apps.NotificationConfig',
     'oauth2_provider',
     'rest_framework',
     'channels',
     'channels_redis',
+    'fcm_django',
 ]
 
 MIDDLEWARE = [

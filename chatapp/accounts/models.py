@@ -63,3 +63,6 @@ class UserFriend(models.Model):
     friend = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name='friend')
     is_accepted = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ('user', 'friend')
