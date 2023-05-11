@@ -67,10 +67,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             content = text_data_json['content']
             message = await self.save_message(message_type, room, sender, content)
         elif message_type == 1:
-            base64_image = text_data_json.get('content', None)
-            image = ContentFile(base64.b64decode(base64_image))
-            message = await self.save_message(message_type, room, sender, image)
-            content = base64_image
+            content = text_data_json.get('content', None)
+            message = await self.save_message(message_type, room, sender, content)
         elif message_type == 2:
             content = text_data_json.get('content', None)
             message = await self.save_message(message_type, room, sender, content)
@@ -116,6 +114,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if message_type==0:
             return Message.objects.create(type=message_type, room=room, sender=sender, text=content, status='not_sent')
         elif message_type==1:
-            return Message.objects.create(type=message_type, room=room, sender=sender, image=content, status='not_sent')
+            return Message.objects.create(type=message_type, room=room, sender=sender, image_url=content, status='not_sent')
         else:
             return Message.objects.create(type=message_type, room=room, sender=sender, sticker=content, status='not_sent')

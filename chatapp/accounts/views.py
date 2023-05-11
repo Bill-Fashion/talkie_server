@@ -1,4 +1,3 @@
-
 from django.shortcuts import get_object_or_404, render
 from rest_framework import status
 from rest_framework.views import APIView
@@ -27,8 +26,6 @@ class RegisterView(APIView):
 
 
 class LoginView(APIView):
-    # Initialize a mutex
-
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -48,11 +45,9 @@ class LoginView(APIView):
             authorization_grant_type=Application.GRANT_PASSWORD,
         )
 
-        # Delete any existing access tokens and refresh tokens for this user and application
         AccessToken.objects.filter(user=user, application=app).delete()
         RefreshToken.objects.filter(user=user, application=app).delete()
 
-        # Generate new access token and refresh token
         access_token = AccessToken.objects.create(
             user=user,
             application=app,
@@ -67,7 +62,6 @@ class LoginView(APIView):
             application=app,
             token=generate_token(),
             access_token=access_token,
-
         )
         data = {
             'access_token': access_token.token,
@@ -133,8 +127,7 @@ class UpdateUser(APIView):
         if 'last_name' in data:
             user.last_name = data['last_name']
         if 'avatar' in data:
-            image = ContentFile(base64.b64decode(data['avatar']))
-            user.avatar = image
+            user.avatar = data['avatar']
         
         # Save the changes to the user object
         user.save()

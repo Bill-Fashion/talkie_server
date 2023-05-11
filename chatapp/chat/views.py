@@ -27,14 +27,11 @@ class RoomCreateView(generics.CreateAPIView):
 
 class GetRoom(APIView):
     def get(self, request, user_id1, user_id2):
-        # Get the users
         user1 = get_object_or_404(CustomUser, user_id=user_id1)
         user2 = get_object_or_404(CustomUser, user_id=user_id2)
 
-        # Get the rooms that both users are members of
         rooms = Room.objects.filter(members=user1).filter(members=user2)
 
-        # Return the first room found (if any)
         if rooms.exists():
             room = rooms.first()
             data = {
@@ -82,7 +79,7 @@ class GetRoomsInfo(APIView):
                 'id': room.id,
                 'name': room.name,
                 'last_message': {
-                    'text': last_message.text if last_message else '',
+                    'text': last_message.text if last_message.type==0 else "Image" if last_message.type==1 else "Sticker",
                     'sender': last_message.sender.user_id if last_message else '',
                     'created_at': last_message.created_at if last_message else '',
                 },
@@ -97,27 +94,18 @@ class GetRoomsInfo(APIView):
 
 class GetLatestMessages(APIView):
     def get(self, request, room_id):
-    # Get the room by its ID
         try:
             room = Room.objects.get(id=room_id)
         except Room.DoesNotExist:
             return Response({'error': 'Room does not exist'})
+        
+        offset = int(request.query_params.get('offset', 0))
 
-        # Get the 20 latest messages from the room
-        messages = Message.objects.filter(room=room).order_by('-created_at')[:20]
+        messages = Message.objects.filter(room=room).order_by('-created_at')[offset:offset+20]
 
-        # Encrypt the message content using Fernet
-        # key = Fernet.generate_key()
-        # f = Fernet(key)
-        # for message in messages:
-        #     if message.text:
-        #         encrypted_text = f.encrypt(message.text.encode())
-        #         message.text = encrypted_text.decode()
-
-        # Serialize the messages and return the response
         data = [{
                 'msg_type': message.type,
-                'content': message.text if message.type==0 else message.image.url if message.type==1 else message.sticker,
+                'content': message.text if message.type==0 else message.image_url if message.type==1 else message.sticker,
                 'sender_id': message.sender_id,
                 'created_at': message.created_at} for message in messages]
         return Response({'data': data})
