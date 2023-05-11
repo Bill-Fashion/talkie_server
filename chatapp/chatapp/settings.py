@@ -44,10 +44,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
     'chat.apps.ChatConfig',
+    'notification.apps.NotificationConfig',
     'oauth2_provider',
     'rest_framework',
     'channels',
     'channels_redis',
+    'fcm_django',
 ]
 
 MIDDLEWARE = [
@@ -77,12 +79,11 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [(os.environ.get('REDIS_HOST', "127.0.0.1"), 6379)],
+            # "hosts": [("127.0.0.1", 6379)],
         },
     },
 }
-
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -114,10 +115,11 @@ AUTHENTICATION_BACKENDS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'talkie',
-        'USER': 'postgres',
-        'PASSWORD': 'Dangcap123*@',
-        'HOST': 'localhost'
+        'NAME': os.environ.get('DB_NAME', 'talkie'),
+        'USER':os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'Dangcap123*@'),
+        'HOST':os.environ.get('DB_HOST', 'localhost'),
+        'PORT':5432,
     }
 }
 

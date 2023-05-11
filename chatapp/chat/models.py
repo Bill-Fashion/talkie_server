@@ -15,7 +15,7 @@ class Message(models.Model):
         Room, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     text = models.TextField()
-    image = models.ImageField(upload_to='chat/images/', null=True, blank=True)
+    image_url = models.URLField(blank=True, null=True)
     sticker = models.URLField(blank=True, null=True)
     type = models.IntegerField(validators=[MaxValueValidator(9), MinValueValidator(0)], null=True, blank=True)
     status = models.CharField(max_length=10, choices=[
